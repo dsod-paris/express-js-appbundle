@@ -69,8 +69,8 @@ jobs:
           JF_URL: https://${{ vars.JF_URL }}/
           JF_PROJECT: ${{ vars.JF_PROJECT }}
         with:
-            oidc-provider-name: talet-github
-            oidc-audience: talet-audience
+            oidc-provider-name: fredericg-github
+            oidc-audience: fredericg-audience
       
       - name: NPM Curation Audit 
         run: |
