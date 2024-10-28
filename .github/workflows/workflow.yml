@@ -37,12 +37,14 @@ on:
         type: string
         default: "false"
         description: "Set to false to ignore the fail build coming from Xray (exit code 3)"
+
 permissions:
   actions: read           # for detecting the Github Actions environment
   id-token: write         # for creating OIDC tokens for signing
   packages: write         # for uploading attestations
   contents: read          # read the contents permission
   security-events: write  # for uploading code scanning
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -53,10 +55,13 @@ jobs:
     steps:
       - name: Print Inputs
         run: echo "${{ toJSON(github.event.inputs) }}"
+
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Install Node
         uses: actions/setup-node@v4
         with:
@@ -87,10 +92,10 @@ jobs:
           jf npm i --omit dev
           
           if [ ${{ github.event.inputs.xr_enable_scan }} == 'true' ]; then
-          	echo "Execute Xray scanning ..."
+          	echo "Scan Source Code"
           	jf audit --npm --fail=${{ github.event.inputs.xr_override_fail_build }}
           else
-          	echo "Skip Xray scanning!!!"
+          	echo "Skip Source Code Scan"
           fi
 
       - name: Docker Authenticate
