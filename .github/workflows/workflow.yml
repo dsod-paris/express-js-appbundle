@@ -90,14 +90,18 @@ jobs:
       - name: NPM Audit 
         run: |
           jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_remote_repo_id }}
-          jf npm i --omit dev
-          
+          jf npm i --omit dev--sast --format=sarif > jfrog_sast.sarif        
           if [ ${{ github.event.inputs.xr_enable_scan }} == 'true' ]; then
           	echo "Scan Source Code"
           	jf audit --npm --fail=${{ github.event.inputs.xr_override_fail_build }}
           else
           	echo "Skip Source Code Scan"
           fi
+
+      - name: Upload output to generate autofix
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: jfrog_sast.sarif
 
       - name: Docker Authenticate
         uses: docker/login-action@v3
