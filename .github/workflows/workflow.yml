@@ -74,6 +74,7 @@ jobs:
           JF_URL: https://${{ vars.JF_URL }}/
           JF_PROJECT: ${{ vars.JF_PROJECT }}
         with:
+            version: 2.71.1
             oidc-provider-name: fredericg-github
             oidc-audience: fredericg-audience
       
