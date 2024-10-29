@@ -73,7 +73,7 @@ jobs:
         env:
           JF_URL: https://${{ vars.JF_URL }}/
           JF_PROJECT: ${{ vars.JF_PROJECT }}
-          JFROG_CLI_LOG_LEVEL: DEBUG
+          JFROG_CLI_LOG_LEVEL: "DEBUG"
         with:
             version: 2.71.2
             oidc-provider-name: fredericg-github
@@ -123,6 +123,7 @@ jobs:
       - name: Docker Scan
         run: |
           echo "digest=$(docker images --no-trunc --quiet ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }})" >> $GITHUB_OUTPUT
+          export JFROG_CLI_LOG_LEVEL="DEBUG"
           jf docker pull ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} --fail=${{ github.event.inputs.xr_override_fail_build }} --vuln
       
