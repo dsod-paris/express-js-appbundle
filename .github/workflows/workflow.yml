@@ -133,4 +133,4 @@ jobs:
       
       - name: Build Scan
         run: |            
-          jf build-scan --fail=${{ github.event.inputs.xr_override_fail_build }} --vuln
+          jf build-scan --fail=${{ github.event.inputs.xr_override_fail_build }} --vuln --project=fg
