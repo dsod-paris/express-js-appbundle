@@ -1,21 +1,21 @@
-name: "dsod24-github-ejs-build"
+name: "fg-dsod24-github-ejs-build"
 on: 
   workflow_dispatch:
     inputs:
       rt_npm_remote_repo_id:
         required: true
         type: string
-        default: "dsod24-npm-dev-remote"
+        default: "fg-npm"
         description: "Artifactory Repository Name"
       rt_npm_curation_remote_repo_id:
         required: true
         type: string
-        default: "dsod24-npm-curated-dev-remote"
+        default: "fg-npm-remote"
         description: "NPM Curation Repository Name"
       rt_docker_repo:
         required: true
         type: string
-        default: "dsod24-docker-dev-fed"
+        default: "fg-docker"
         description: "Artifactory Docker repository"
       docker_image_name:
         required: true
@@ -25,12 +25,12 @@ on:
       xr_enable_scan:
         required: true
         type: string
-        default: "false"
+        default: "true"
         description: "Scan with Xray"
       curation_audit:
         required: true
         type: string
-        default: "false"
+        default: "true"
         description: "Audit with Curation"
       xr_override_fail_build:
         required: true
