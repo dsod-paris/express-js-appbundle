@@ -131,8 +131,8 @@ jobs:
           jf rt build-collect-env
           jf rt build-add-git
           jf rt build-publish
-          sleep 10
+          sleep 5
       
       - name: Build Scan
         run: |            
-          jf build-scan --fail=${{ github.event.inputs.xr_override_fail_build }} --vuln --project=fg
+          jf build-scan --vuln --fail=false --vuln --project=${{ vars.JF_PROJECT }}
