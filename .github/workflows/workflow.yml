@@ -135,4 +135,4 @@ jobs:
       
       - name: Build Scan
         run: |            
-          jf build-scan --vuln --fail=false --vuln --project=${{ vars.JF_PROJECT }}
+          jf build-scan fg-dsod24-github-ejs-build ${{ github.run_number }} --vuln --fail=false --vuln --project=${{ vars.JF_PROJECT }}
