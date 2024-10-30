@@ -131,6 +131,7 @@ jobs:
           jf rt build-collect-env
           jf rt build-add-git
           jf rt build-publish
+          sleep 10
       
       - name: Build Scan
         run: |            
