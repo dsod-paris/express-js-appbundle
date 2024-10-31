@@ -114,6 +114,7 @@ jobs:
           push: true
           tags: ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           provenance: false
+          platforms: linux/amd64, linux/arm64
       
       - name: Docker Add Package to Build
         run: |  
