@@ -4,6 +4,8 @@ const evilsrc = {constructor: {prototype: {evilkey: "evilvalue"}}};
 // Object.freeze(Object.prototype);
 lodash.defaultsDeep({}, evilsrc)
 
+const { getArduinoDevices } = require('./lib/arduino');
+
 var app = express();
 var password = "Ivan_jr22"
 
@@ -16,12 +18,23 @@ app.use(express.static('public'));
 app.get('/', function(req, res) {
   if (!req.query.hasOwnProperty('id')){
     req.query.id = 'Stranger';
+    console.info(`[INFO] User: ${req.query.id}`);
   }
   res.render('pages/index',req.query);
 });
 
+app.get('/devices', async (req, res) => {
+  try {
+    const devices = await getArduinoDevices();
+    res.json(devices);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch devices' });
+  }
+});
+
+
 app.listen(3000);
-console.log('Server is listening on port 3000');
+console.log('Server is listening on port 3000 \n\t http://localhost:3000/');
 
 var session = require("express-session")
 app.use(
