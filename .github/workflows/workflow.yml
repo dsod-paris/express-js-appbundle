@@ -75,7 +75,7 @@ jobs:
           JF_PROJECT: ${{ vars.JF_PROJECT }}
           JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-            version: 2.71.2
+            version: 2.71.3
             oidc-provider-name: fredericg-github
             oidc-audience: fredericg-audience
       
