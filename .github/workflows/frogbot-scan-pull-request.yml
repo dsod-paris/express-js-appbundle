@@ -25,8 +25,8 @@ jobs:
 
       - uses: jfrog/frogbot@v2
         with:
-          oidc-provider-name: talet-github
-          oidc-audience: talet-audience
+          oidc-provider-name: fredericg-github
+          oidc-audience: fredericg-audience
         env:
           # [Mandatory]
           # JFrog platform URL
