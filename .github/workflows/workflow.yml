@@ -125,7 +125,7 @@ jobs:
           echo "digest=$(docker images --no-trunc --quiet ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }})" >> $GITHUB_OUTPUT
           jf docker pull ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} --vuln --fail=${{ github.event.inputs.xr_override_fail_build }} --format=sarif > jfrog_sast.sarif
-          sed -i s/"\"uri\": \"\""/"\"uri\": \"Docker Image\""/g jfrog_sast.sarif
+          sed -i s/"\"uri\": \"\""/"\"uri\": \"${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}\""/g jfrog_sast.sarif
 
       - name: Upload output to generate autofix
         uses: github/codeql-action/upload-sarif@v3
