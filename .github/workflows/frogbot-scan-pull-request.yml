@@ -3,9 +3,11 @@ on:
   pull_request_target:
     types: [opened, synchronize]
 permissions:
-  pull-requests: write
-  contents: read
-  id-token: write
+  actions: read           # for detecting the Github Actions environment
+  id-token: write         # for creating OIDC tokens for signing
+  packages: write         # for uploading attestations
+  contents: read          # read the contents permission
+  security-events: write  # for uploading code scanning
 jobs:
   scan-pull-request:
     runs-on: ubuntu-latest
@@ -25,8 +27,8 @@ jobs:
 
       - uses: jfrog/frogbot@v2
         with:
-          oidc-provider-name: talet-github
-          oidc-audience: talet-audience
+          oidc-provider-name: fredericg-github
+          oidc-audience: fredericg-audience
         env:
           # [Mandatory]
           # JFrog platform URL
