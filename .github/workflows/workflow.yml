@@ -83,7 +83,11 @@ jobs:
         run: |
           if [ ${{ github.event.inputs.curation_audit }} == 'true' ]; then
             jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_curation_remote_repo_id }}
-            jf curation-audit
+            jf curation-audit | tee -a curation-audit.log
+            grep "Found 0 blocked packages" curation-audit.log
+            if [ $? -gt 0] ; then
+              exit 1
+            fi
           else
             echo "Skip Curation Audit!!!"
           fi
