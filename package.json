@@ -9,12 +9,14 @@
   "author": "davidro@jfrog.com",
   "license": "MIT",
   "dependencies": {
+    "arduino-iot-js": "^0.13.0",
     "editor.md": "1.5.0",
     "ejs": "3.1.10",
     "express": "4.18.2",
+    "express-session": "^1.18.1",
     "lodash": "4.17.0",
+    "pm2": "5.3.0",
     "protobufjs": "6.11.2",
-    "vm2": "3.9.4",
-    "pm2": "5.3.0"
+    "vm2": "3.9.4"
   }
 }
