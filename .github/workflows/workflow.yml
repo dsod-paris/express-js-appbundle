@@ -73,7 +73,6 @@ jobs:
         env:
           JF_URL: https://${{ vars.JF_URL }}/
           JF_PROJECT: ${{ vars.JF_PROJECT }}
-          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           version: 2.71.3
           oidc-provider-name: fredericg-github
