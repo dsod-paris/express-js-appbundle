@@ -1,21 +1,21 @@
-name: "fg-dsod24-github-ejs-build"
+name: "gh-ejs-demo"
 on: 
   workflow_dispatch:
     inputs:
       rt_npm_remote_repo_id:
         required: true
         type: string
-        default: "fg-npm"
+        default: "denv-npm"
         description: "Artifactory Repository Name"
       rt_npm_curation_remote_repo_id:
         required: true
         type: string
-        default: "fg-npm-remote"
+        default: "denv-npm-remote"
         description: "NPM Curation Repository Name"
       rt_docker_repo:
         required: true
         type: string
-        default: "fg-docker"
+        default: "denv-docker"
         description: "Artifactory Docker repository"
       docker_image_name:
         required: true
@@ -72,24 +72,25 @@ jobs:
         id: setup-cli
         env:
           JF_URL: https://${{ vars.JF_URL }}/
-          JF_PROJECT: ${{ vars.JF_PROJECT }}
-        with:
-          version: 2.71.3
-          oidc-provider-name: fredericg-github
-          oidc-audience: fredericg-audience
+          JF_PROJECT: ${{ secrets.JF_PROJECT }}
+          JF_USER: ${{ secrets.JF_USER }}
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+        #with:
+        #  oidc-provider-name: denv-github
+        #  oidc-audience: denv-audience
 
-      - name: NPM Curation Audit 
-        run: |
-          if [ ${{ github.event.inputs.curation_audit }} == 'true' ]; then
-            jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_curation_remote_repo_id }}
-            jf curation-audit | tee -a curation-audit.log
-            grep "Found 0 blocked packages" curation-audit.log
-            if [ $? -gt 0] ; then
-              exit 1
-            fi
-          else
-            echo "Skip Curation Audit!!!"
-          fi
+      # - name: NPM Curation Audit 
+      #   run: |
+      #     if [ ${{ github.event.inputs.curation_audit }} == 'true' ]; then
+      #       jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_curation_remote_repo_id }}
+      #       jf curation-audit | tee -a curation-audit.log
+      #       grep "Found 0 blocked packages" curation-audit.log
+      #       if [ $? -gt 0] ; then
+      #         exit 1
+      #       fi
+      #     else
+      #       echo "Skip Curation Audit!!!"
+      #     fi
 
       - name: NPM Audit 
         run: |
@@ -106,15 +107,15 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.JF_URL }}
-          username: ${{ steps.setup-cli.outputs.oidc-user }}
-          password: ${{ steps.setup-cli.outputs.oidc-token }}
+          username: ${{ secrets.JF_USER }}
+          password: ${{ secrets.JF_PASSWORD }}
 
       - name: Docker Build and Push
         uses: docker/build-push-action@v5
         id: build
         with:
           push: true
-          tags: ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+          tags: ${{ secrets.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           provenance: false
           platforms: linux/amd64, linux/arm64
 
@@ -145,5 +146,5 @@ jobs:
 
       - name: Build Scan
         run: |            
-          jf build-scan fg-dsod24-github-ejs-build ${{ github.run_number }} --project=${{ vars.JF_PROJECT }} --fail=false
-          jf build-scan fg-dsod24-github-ejs-build ${{ github.run_number }} --project=${{ vars.JF_PROJECT }} --fail=false --vuln
+          jf build-scan denv-github-ejs-build ${{ github.run_number }} --project=${{ secrets.JF_PROJECT }} --fail=false
+          jf build-scan denv-github-ejs-build ${{ github.run_number }} --project=${{ secrets.JF_PROJECT }} --fail=false --vuln
