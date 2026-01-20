@@ -5,17 +5,17 @@ on:
       rt_npm_remote_repo_id:
         required: true
         type: string
-        default: "denv-npm"
+        default: ""dro-npm-remote"
         description: "Artifactory Repository Name"
       rt_npm_curation_remote_repo_id:
         required: true
         type: string
-        default: "denv-npm-remote"
+        default: "dro-npm-remote"
         description: "NPM Curation Repository Name"
       rt_docker_repo:
         required: true
         type: string
-        default: "denv-docker"
+        default: "dro-dro-docker-virtual"
         description: "Artifactory Docker repository"
       docker_image_name:
         required: true
