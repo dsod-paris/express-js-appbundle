@@ -5,7 +5,7 @@ on:
       rt_npm_remote_repo_id:
         required: true
         type: string
-        default: ""dro-npm-remote"
+        default: "dro-npm-remote"
         description: "Artifactory Repository Name"
       rt_npm_curation_remote_repo_id:
         required: true
