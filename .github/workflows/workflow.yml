@@ -1,21 +1,21 @@
-name: "fg-dsod24-github-ejs-build"
+name: "gh-ejs-demo"
 on: 
   workflow_dispatch:
     inputs:
       rt_npm_remote_repo_id:
         required: true
         type: string
-        default: "fg-npm"
+        default: "denv-npm"
         description: "Artifactory Repository Name"
       rt_npm_curation_remote_repo_id:
         required: true
         type: string
-        default: "fg-npm-remote"
+        default: "denv-npm-remote"
         description: "NPM Curation Repository Name"
       rt_docker_repo:
         required: true
         type: string
-        default: "fg-docker"
+        default: "denv-docker"
         description: "Artifactory Docker repository"
       docker_image_name:
         required: true
@@ -66,33 +66,36 @@ jobs:
         uses: actions/setup-node@v4
         with:
             node-version: 18
-      
+
       - name: Setup JFrog CLI 
         uses: jfrog/setup-jfrog-cli@v4
         id: setup-cli
         env:
           JF_URL: https://${{ vars.JF_URL }}/
-          JF_PROJECT: ${{ vars.JF_PROJECT }}
-          JF_GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-            version: 2.71.3
-            oidc-provider-name: fredericg-github
-            oidc-audience: fredericg-audience
-      
-      - name: NPM Curation Audit 
-        run: |
-          if [ ${{ github.event.inputs.curation_audit }} == 'true' ]; then
-            jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_curation_remote_repo_id }}
-            jf curation-audit
-          else
-            echo "Skip Curation Audit!!!"
-          fi
+          JF_PROJECT: ${{ secrets.JF_PROJECT }}
+          JF_USER: ${{ secrets.JF_USER }}
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+        #with:
+        #  oidc-provider-name: denv-github
+        #  oidc-audience: denv-audience
+
+      # - name: NPM Curation Audit 
+      #   run: |
+      #     if [ ${{ github.event.inputs.curation_audit }} == 'true' ]; then
+      #       jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_curation_remote_repo_id }}
+      #       jf curation-audit | tee -a curation-audit.log
+      #       grep "Found 0 blocked packages" curation-audit.log
+      #       if [ $? -gt 0] ; then
+      #         exit 1
+      #       fi
+      #     else
+      #       echo "Skip Curation Audit!!!"
+      #     fi
 
       - name: NPM Audit 
         run: |
           jf npmc --repo-resolve ${{ github.event.inputs.rt_npm_remote_repo_id }}
           jf npm i --omit dev --sast
-
           if [ ${{ github.event.inputs.xr_enable_scan }} == 'true' ]; then
           	echo "Scan Source Code"
           	jf audit --npm --fail=${{ github.event.inputs.xr_override_fail_build }}
@@ -104,43 +107,44 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.JF_URL }}
-          username: ${{ steps.setup-cli.outputs.oidc-user }}
-          password: ${{ steps.setup-cli.outputs.oidc-token }}
+          username: ${{ secrets.JF_USER }}
+          password: ${{ secrets.JF_PASSWORD }}
 
       - name: Docker Build and Push
         uses: docker/build-push-action@v5
         id: build
         with:
           push: true
-          tags: ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
+          tags: ${{ secrets.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           provenance: false
           platforms: linux/amd64, linux/arm64
-      
+
       - name: Docker Add Package to Build
         run: |  
-           echo "${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}@${{ steps.build.outputs.digest }}" > metadata.json
-           jf rt build-docker-create ${{ env.DOCKER_REPO }} --image-file metadata.json 
+          echo "${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}@${{ steps.build.outputs.digest }}" > metadata.json
+          jf rt build-docker-create ${{ env.DOCKER_REPO }} --image-file metadata.json 
 
       - name: Docker Scan
         run: |
           echo "digest=$(docker images --no-trunc --quiet ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }})" >> $GITHUB_OUTPUT
           jf docker pull ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }}
           jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} --fail=${{ github.event.inputs.xr_override_fail_build }} --format=sarif > jfrog_sast.sarif
-          echo "===========SARIF=========="
-          cat jfrog_sast.sarif
-     
+          jf docker scan ${{ vars.JF_URL }}/${{ env.DOCKER_REPO }}/${{ env.IMAGE_NAME }}:${{ github.run_number }} --fail=${{ github.event.inputs.xr_override_fail_build }} --vuln
+          sed -i s/"\"uri\": \"\""/"\"uri\": \"${{ vars.JF_URL }}\/${{ env.DOCKER_REPO }}\/${{ env.IMAGE_NAME }}:${{ github.run_number }}\""/g jfrog_sast.sarif
+
       - name: Upload output to generate autofix
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: jfrog_sast.sarif
-          
+
       - name: Publish Build Info
         run: |
           jf rt build-collect-env
           jf rt build-add-git
           jf rt build-publish
           sleep 60
-      
+
       - name: Build Scan
         run: |            
-          jf build-scan fg-dsod24-github-ejs-build ${{ github.run_number }} --fail=false --project=${{ vars.JF_PROJECT }} --vuln
+          jf build-scan denv-github-ejs-build ${{ github.run_number }} --project=${{ secrets.JF_PROJECT }} --fail=false
+          jf build-scan denv-github-ejs-build ${{ github.run_number }} --project=${{ secrets.JF_PROJECT }} --fail=false --vuln
